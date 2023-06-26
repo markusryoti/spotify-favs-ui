@@ -40,7 +40,7 @@ export async function getAccessTokenFromRequest(cookies: Cookies, fetch: Fetch):
     return accessToken
 }
 
-function setCookie(cookies: Cookies, name: string, value: string) {
+export function setCookie(cookies: Cookies, name: string, value: string) {
     cookies.set(name, value, {
         path: '/',
         httpOnly: true,
