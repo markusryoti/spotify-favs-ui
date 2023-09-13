@@ -28,6 +28,8 @@
 		}
 	}
 
+	$: getPlayer(session);
+
 	function play() {
 		player.togglePlay();
 	}
