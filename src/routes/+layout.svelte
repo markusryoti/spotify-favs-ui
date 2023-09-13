@@ -1,78 +1,81 @@
-<script>
-    import "../app.postcss";
+<script lang="ts">
+	import '../app.postcss';
 
-    // Your selected Skeleton theme:
-    import "@skeletonlabs/skeleton/themes/theme-skeleton.css";
+	// Your selected Skeleton theme:
+	import '@skeletonlabs/skeleton/themes/theme-skeleton.css';
 
-    // This contains the bulk of Skeletons required styles:
-    import "@skeletonlabs/skeleton/styles/all.css";
+	// This contains the bulk of Skeletons required styles:
+	import '@skeletonlabs/skeleton/styles/all.css';
 
-    // Finally, your application's global stylesheet (sometimes labeled 'app.css')
-    import "../app.postcss";
+	// Finally, your application's global stylesheet (sometimes labeled 'app.css')
+	import '../app.postcss';
 
-    import {
-        AppShell,
-        AppBar,
-        AppRail,
-        AppRailTile,
-        AppRailAnchor,
-    } from "@skeletonlabs/skeleton";
+	import {
+		AppShell,
+		AppBar,
+		AppRail,
+		AppRailTile,
+		AppRailAnchor,
+	} from '@skeletonlabs/skeleton';
+	import Player from '$lib/player/player.svelte';
 
-    let currentTile = 0;
+	let currentTile = 0;
+
+	import type { LayoutData } from './$types';
+
+	export let data: LayoutData;
 </script>
 
 <AppShell>
-    <svelte:fragment slot="header">
-        <AppBar>Title</AppBar>
-    </svelte:fragment>
+	<svelte:fragment slot="header">
+		<AppBar>Title</AppBar>
+	</svelte:fragment>
 
-    <svelte:fragment slot="sidebarLeft">
-        <AppRail>
-            <svelte:fragment slot="lead">
-                <AppRailAnchor href="/">Home</AppRailAnchor>
-            </svelte:fragment>
+	<svelte:fragment slot="sidebarLeft">
+		<AppRail>
+			<svelte:fragment slot="lead">
+				<AppRailAnchor href="/">Home</AppRailAnchor>
+			</svelte:fragment>
 
-            <AppRailTile
-                bind:group={currentTile}
-                name="tile-1"
-                value={0}
-                title="tile-1"
-            >
-                <svelte:fragment slot="lead">
-                    <AppRailAnchor href="/current-favorites"
-                        >Stats</AppRailAnchor
-                    >
-                </svelte:fragment>
-            </AppRailTile>
+			<AppRailTile
+				bind:group={currentTile}
+				name="tile-1"
+				value={0}
+				title="tile-1"
+			>
+				<svelte:fragment slot="lead">
+					<AppRailAnchor href="/current-favorites">Stats</AppRailAnchor>
+				</svelte:fragment>
+			</AppRailTile>
 
-            <AppRailTile
-                bind:group={currentTile}
-                name="tile-2"
-                value={1}
-                title="tile-2"
-            >
-                <svelte:fragment slot="lead">
-                    <AppRailAnchor href="/rooms">Rooms</AppRailAnchor>
-                </svelte:fragment>
-            </AppRailTile>
+			<AppRailTile
+				bind:group={currentTile}
+				name="tile-2"
+				value={1}
+				title="tile-2"
+			>
+				<svelte:fragment slot="lead">
+					<AppRailAnchor href="/rooms">Rooms</AppRailAnchor>
+				</svelte:fragment>
+			</AppRailTile>
 
-            <svelte:fragment slot="trail">
-                <AppRailAnchor href="/profile" title="Account"
-                    >Profile</AppRailAnchor
-                >
-            </svelte:fragment>
-        </AppRail>
-    </svelte:fragment>
+			<svelte:fragment slot="trail">
+				<AppRailAnchor href="/profile" title="Account">Profile</AppRailAnchor>
+			</svelte:fragment>
+		</AppRail>
+	</svelte:fragment>
 
-    <div class="content">
-        <slot />
-    </div>
+	<div class="content">
+		<slot />
+	</div>
 
-    <svelte:fragment slot="pageFooter">Page Footer</svelte:fragment>
+	<svelte:fragment slot="pageFooter">
+		<Player session={data.sessionData} />
+	</svelte:fragment>
 </AppShell>
 
 <style>
-    .content {
-        padding: 2rem;
-    }
+	.content {
+		padding: 2rem;
+	}
 </style>

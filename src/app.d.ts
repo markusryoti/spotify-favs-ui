@@ -7,6 +7,21 @@ declare global {
 		// interface PageData {}
 		// interface Platform {}
 	}
+
+	interface Window {
+		onSpotifyWebPlaybackSDKReady: () => void;
+		Spotify: {
+			Player;
+		};
+	}
+}
+
+class Player {
+	constructor(
+		name: string,
+		getOAuthToken: (cb: any) => void,
+		volume: number
+	): any {}
 }
 
 export {};

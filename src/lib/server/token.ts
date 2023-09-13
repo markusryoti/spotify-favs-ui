@@ -18,7 +18,7 @@ export async function getAccessTokenFromRequest(cookies: Cookies, fetch: Fetch):
     if (accessToken) return accessToken
 
     if (!refreshToken) {
-        throw redirect(302, "/");
+        throw redirect(302, "/login");
     }
 
     const res = await fetch("http://localhost:8080/refresh-token", {
