@@ -17,52 +17,91 @@
 		AppRailTile,
 		AppRailAnchor,
 	} from '@skeletonlabs/skeleton';
+
 	import Player from '$lib/player/player.svelte';
 
-	let currentTile = 0;
-
 	import type { LayoutData } from './$types';
+	import Icon from '@iconify/svelte';
+	import { page } from '$app/stores';
+
+	let currentTile = 0;
+	$: currentTile = currentTile;
 
 	export let data: LayoutData;
+
+	$: authenticated = data.sessionData.token !== '' ? true : false;
+
+	function setActiveTab() {
+		const path = $page.url.pathname;
+
+		switch (path) {
+			case '/':
+				currentTile = 0;
+				break;
+			case '/current-favorites':
+				currentTile = 1;
+				break;
+			case '/rooms':
+				currentTile = 2;
+				break;
+			default:
+				currentTile = 0;
+		}
+	}
+
+	$: $page && setActiveTab();
 </script>
 
 <AppShell>
 	<svelte:fragment slot="header">
-		<AppBar>Title</AppBar>
+		<AppBar regionRowMain="text-xl font-bold">favs</AppBar>
 	</svelte:fragment>
 
 	<svelte:fragment slot="sidebarLeft">
-		<AppRail>
-			<svelte:fragment slot="lead">
-				<AppRailAnchor href="/">Home</AppRailAnchor>
-			</svelte:fragment>
+		{#if authenticated}
+			<AppRail>
+				<AppRailTile
+					bind:group={currentTile}
+					name="tile-1"
+					value={0}
+					title="tile-1"
+				>
+					<svelte:fragment slot="lead">
+						<AppRailAnchor href="/">Home</AppRailAnchor>
+					</svelte:fragment>
+				</AppRailTile>
 
-			<AppRailTile
-				bind:group={currentTile}
-				name="tile-1"
-				value={0}
-				title="tile-1"
-			>
-				<svelte:fragment slot="lead">
-					<AppRailAnchor href="/current-favorites">Stats</AppRailAnchor>
+				<AppRailTile
+					bind:group={currentTile}
+					name="tile-1"
+					value={1}
+					title="tile-1"
+				>
+					<svelte:fragment slot="lead">
+						<AppRailAnchor href="/current-favorites">Stats</AppRailAnchor>
+					</svelte:fragment>
+				</AppRailTile>
+
+				<AppRailTile
+					bind:group={currentTile}
+					name="tile-2"
+					value={2}
+					title="tile-2"
+				>
+					<svelte:fragment slot="lead">
+						<AppRailAnchor href="/rooms">Rooms</AppRailAnchor>
+					</svelte:fragment>
+				</AppRailTile>
+
+				<svelte:fragment slot="trail">
+					<AppRailAnchor href="/profile" title="Account">
+						<div class="flex justify-center">
+							<Icon icon="mdi:user" height="24" />
+						</div>
+					</AppRailAnchor>
 				</svelte:fragment>
-			</AppRailTile>
-
-			<AppRailTile
-				bind:group={currentTile}
-				name="tile-2"
-				value={1}
-				title="tile-2"
-			>
-				<svelte:fragment slot="lead">
-					<AppRailAnchor href="/rooms">Rooms</AppRailAnchor>
-				</svelte:fragment>
-			</AppRailTile>
-
-			<svelte:fragment slot="trail">
-				<AppRailAnchor href="/profile" title="Account">Profile</AppRailAnchor>
-			</svelte:fragment>
-		</AppRail>
+			</AppRail>
+		{/if}
 	</svelte:fragment>
 
 	<div class="content">
@@ -70,7 +109,9 @@
 	</div>
 
 	<svelte:fragment slot="pageFooter">
-		<Player session={data.sessionData} />
+		{#if authenticated}
+			<Player session={data.sessionData} />
+		{/if}
 	</svelte:fragment>
 </AppShell>
 

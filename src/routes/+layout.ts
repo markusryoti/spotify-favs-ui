@@ -7,6 +7,16 @@ export const load: LayoutLoad = async ({ fetch }) => {
 				'content-type': 'application/json',
 			},
 		});
+
+		if (!res.ok) {
+			console.error('Bad status calling auth', res.status);
+			return {
+				sessionData: {
+					token: '',
+				},
+			};
+		}
+
 		const sessionData: { token: string } = await res.json();
 
 		return {

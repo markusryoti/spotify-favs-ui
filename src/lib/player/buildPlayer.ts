@@ -1,4 +1,19 @@
-import { writable } from 'svelte/store';
+import { writable, type Writable } from 'svelte/store';
+
+export type CurrentTrack = Writable<{
+	name: string;
+	artists: {
+		name: string;
+	}[];
+}>;
+
+export type Player = {
+	addListener: (event: string, cb: (params: any) => void) => void;
+	connect: () => void;
+	togglePlay: () => void;
+	nextTrack: () => void;
+	previousTrack: () => void;
+};
 
 export function buildPlayer(token: string) {
 	console.log('Constructing a new player');
@@ -18,11 +33,13 @@ export function buildPlayer(token: string) {
 
 		document.head.appendChild(script);
 
-		const currentTrack = writable({ name: '' });
+		const currentTrack = writable({ name: '', artists: [{ name: '' }] });
 
-		return new Promise((resolve, reject) => {
+		return new Promise<
+			{ player: Player; currentTrack: CurrentTrack } | undefined
+		>((resolve, reject) => {
 			window.onSpotifyWebPlaybackSDKReady = () => {
-				const player = new window.Spotify.Player({
+				const player: Player = new window.Spotify.Player({
 					name: 'Spotify Favorites - Web',
 					getOAuthToken: (cb: any) => {
 						cb(token);
@@ -42,6 +59,7 @@ export function buildPlayer(token: string) {
 					'not_ready',
 					({ device_id }: { device_id: string }) => {
 						console.log('Device ID has gone offline', device_id);
+						reject('offline');
 					}
 				);
 
@@ -49,6 +67,7 @@ export function buildPlayer(token: string) {
 					'initialization_error',
 					({ message }: { message: string }) => {
 						console.error(message);
+						reject(message);
 					}
 				);
 
@@ -56,6 +75,7 @@ export function buildPlayer(token: string) {
 					'authentication_error',
 					({ message }: { message: string }) => {
 						console.error(message);
+						reject(message);
 					}
 				);
 
@@ -63,6 +83,7 @@ export function buildPlayer(token: string) {
 					'account_error',
 					({ message }: { message: string }) => {
 						console.error(message);
+						reject(message);
 					}
 				);
 
