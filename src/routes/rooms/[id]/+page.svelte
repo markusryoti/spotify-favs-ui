@@ -4,4 +4,4 @@
 	export let data: PageData;
 </script>
 
-<h1>{data.room}</h1>
+<h1>{JSON.stringify(data.room)}</h1>

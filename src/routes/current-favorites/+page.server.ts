@@ -1,5 +1,5 @@
 import type { PageServerLoad } from './$types';
-import { getAccessTokenFromRequest } from '$lib/server/token';
+import { getTokensFromRequest } from '$lib/server/token';
 
 type TopItemsResponse = {
 	href: string;
@@ -52,13 +52,13 @@ type QueryConfig = {
 };
 
 export const load = (async ({ cookies, fetch }) => {
-	const accessToken = await getAccessTokenFromRequest(cookies, fetch);
+	const tokens = await getTokensFromRequest(cookies, fetch);
 
 	const res = await fetch(
 		`https://api.spotify.com/v1/me/top/tracks?time_range=${'short_term'}&limit=${10}`,
 		{
 			headers: {
-				Authorization: `Bearer ${accessToken}`,
+				Authorization: `Bearer ${tokens.accessToken}`,
 			},
 		}
 	);

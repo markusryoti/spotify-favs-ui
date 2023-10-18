@@ -1,11 +1,11 @@
 import { writable, type Writable } from 'svelte/store';
 
-export type CurrentTrack = Writable<{
+export type CurrentTrack = {
 	name: string;
 	artists: {
 		name: string;
 	}[];
-}>;
+};
 
 export type Player = {
 	addListener: (event: string, cb: (params: any) => void) => void;
@@ -15,7 +15,9 @@ export type Player = {
 	previousTrack: () => void;
 };
 
-export function buildPlayer(token: string) {
+export function buildPlayer(
+	token: string
+): Promise<{ player: Player; currentTrack: Writable<CurrentTrack> }> {
 	console.log('Constructing a new player');
 
 	const scriptTag = document.getElementById('spotify-player');
@@ -32,74 +34,71 @@ export function buildPlayer(token: string) {
 		script.onerror = (error: any) => {};
 
 		document.head.appendChild(script);
-
-		const currentTrack = writable({ name: '', artists: [{ name: '' }] });
-
-		return new Promise<
-			{ player: Player; currentTrack: CurrentTrack } | undefined
-		>((resolve, reject) => {
-			window.onSpotifyWebPlaybackSDKReady = () => {
-				const player: Player = new window.Spotify.Player({
-					name: 'Spotify Favorites - Web',
-					getOAuthToken: (cb: any) => {
-						cb(token);
-					},
-					volume: 0.5,
-				});
-
-				player.addListener('ready', ({ device_id }: { device_id: string }) => {
-					console.log('Ready with Device ID', device_id);
-					resolve({
-						player,
-						currentTrack,
-					});
-				});
-
-				player.addListener(
-					'not_ready',
-					({ device_id }: { device_id: string }) => {
-						console.log('Device ID has gone offline', device_id);
-						reject('offline');
-					}
-				);
-
-				player.addListener(
-					'initialization_error',
-					({ message }: { message: string }) => {
-						console.error(message);
-						reject(message);
-					}
-				);
-
-				player.addListener(
-					'authentication_error',
-					({ message }: { message: string }) => {
-						console.error(message);
-						reject(message);
-					}
-				);
-
-				player.addListener(
-					'account_error',
-					({ message }: { message: string }) => {
-						console.error(message);
-						reject(message);
-					}
-				);
-
-				player.addListener(
-					'player_state_changed',
-					({ position, duration, track_window: { current_track } }: any) => {
-						console.log('Currently Playing', current_track);
-						console.log('Position in Song', position);
-						console.log('Duration of Song', duration);
-
-						currentTrack.set(current_track);
-					}
-				);
-
-				player.connect();
-			};
-		});
 	}
+
+	const currentTrack = writable<CurrentTrack>({
+		name: '',
+		artists: [{ name: '' }],
+	});
+
+	return new Promise((resolve, reject) => {
+		window.onSpotifyWebPlaybackSDKReady = () => {
+			const player: Player = new window.Spotify.Player({
+				name: 'Spotify Favorites - Web',
+				getOAuthToken: (cb: any) => {
+					cb(token);
+				},
+				volume: 0.5,
+			});
+
+			player.addListener('ready', ({ device_id }: { device_id: string }) => {
+				console.log('Ready with Device ID', device_id);
+				resolve({
+					player,
+					currentTrack,
+				});
+			});
+
+			player.addListener(
+				'not_ready',
+				({ device_id }: { device_id: string }) => {
+					console.log('Device ID has gone offline', device_id);
+					reject('offline');
+				}
+			);
+
+			player.addListener(
+				'initialization_error',
+				({ message }: { message: string }) => {
+					console.error(message);
+					reject(message);
+				}
+			);
+
+			player.addListener(
+				'authentication_error',
+				({ message }: { message: string }) => {
+					console.error(message);
+					reject(message);
+				}
+			);
+
+			player.addListener(
+				'account_error',
+				({ message }: { message: string }) => {
+					console.error(message);
+					reject(message);
+				}
+			);
+
+			player.addListener(
+				'player_state_changed',
+				({ position, duration, track_window: { current_track } }) => {
+					currentTrack.set(current_track as CurrentTrack);
+				}
+			);
+
+			player.connect();
+		};
+	});
 }

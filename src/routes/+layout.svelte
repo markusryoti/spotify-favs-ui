@@ -24,12 +24,21 @@
 	import Icon from '@iconify/svelte';
 	import { page } from '$app/stores';
 
-	let currentTile = 0;
-	$: currentTile = currentTile;
-
 	export let data: LayoutData;
 
-	$: authenticated = data.sessionData.token !== '' ? true : false;
+	let currentTile = 0;
+	let currentRoom: undefined | string;
+	$: currentTile = currentTile;
+	$: currentRoom = currentRoom;
+
+	$: authenticated = data.accessToken !== '' ? true : false;
+	$: sessionData = {
+		accessToken: data.accessToken,
+		sessionToken: data.accessToken,
+	};
+
+	$: $page && setActiveTab();
+	$: $page && setRoom();
 
 	function setActiveTab() {
 		const path = $page.url.pathname;
@@ -49,7 +58,17 @@
 		}
 	}
 
-	$: $page && setActiveTab();
+	function setRoom() {
+		const path = $page.url.pathname;
+		const roomMatch = path.match(/(?<=\/rooms\/)[^/]*/);
+
+		if (!roomMatch) return;
+
+		const roomId = roomMatch[0];
+		console.log(roomId);
+
+		currentRoom = roomId;
+	}
 </script>
 
 <AppShell>
@@ -110,7 +129,7 @@
 
 	<svelte:fragment slot="pageFooter">
 		{#if authenticated}
-			<Player session={data.sessionData} />
+			<Player session={sessionData} roomId={currentRoom} />
 		{/if}
 	</svelte:fragment>
 </AppShell>

@@ -3,6 +3,8 @@ import type { Actions, PageServerLoad } from './$types';
 export type Room = {
 	id: string;
 	name: string;
+	owner: string;
+	created_at: string;
 };
 
 export const load = (async ({ cookies }) => {

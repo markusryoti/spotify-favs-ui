@@ -1,11 +1,14 @@
-import { getAccessTokenFromRequest } from '$lib/server/token';
+import { getTokensFromRequest } from '$lib/server/token';
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 
-export const GET: RequestHandler = async ({ cookies, fetch }) => {
-	const token = await getAccessTokenFromRequest(cookies, fetch);
+export type AuthTokens = {
+	sessionToken: string | undefined;
+	accessToken: string | undefined;
+};
 
-	return json({
-		token,
-	});
+export const GET: RequestHandler = async ({ cookies, fetch }) => {
+	const tokens = await getTokensFromRequest(cookies, fetch);
+
+	return json(tokens);
 };
