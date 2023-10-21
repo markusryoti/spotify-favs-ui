@@ -1,11 +1,5 @@
+import type { CurrentTrack } from '$lib/spotify';
 import type { Writable } from 'svelte/store';
-
-export type CurrentTrack = {
-	name: string;
-	artists: {
-		name: string;
-	}[];
-};
 
 export type Player = {
 	addListener: (event: string, cb: (params: any) => void) => void;

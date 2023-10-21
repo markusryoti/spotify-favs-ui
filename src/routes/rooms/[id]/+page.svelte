@@ -1,20 +1,20 @@
 <script lang="ts">
 	import { getContext } from 'svelte';
 	import type { PageData } from './$types';
-	import type { CurrentTrack } from '$lib/player/buildPlayer';
 	import type { Writable } from 'svelte/store';
 	import { getWebSocket, sendTrackChange } from '$lib/playerState';
 	import { browser } from '$app/environment';
 	import { page } from '$app/stores';
+	import { getArtistName, type CurrentTrack } from '$lib/spotify';
 
 	export let data: PageData;
 
 	let ws: WebSocket | undefined;
+	let userTracks: Map<string, CurrentTrack>;
 
 	const currentTrack = getContext<Writable<CurrentTrack>>('currentTrack');
 
 	currentTrack.subscribe(curr => {
-		console.log('current in room', curr);
 		sendCurrent(ws, curr);
 	});
 
@@ -22,7 +22,14 @@
 
 	async function setWebsocketConnection(roomId: string | undefined) {
 		if (browser && roomId) {
-			ws = getWebSocket(roomId, $page.data.sessionToken);
+			const { ws: wsConn, userTracks: tracks } = getWebSocket(
+				roomId,
+				$page.data.sessionToken
+			);
+			ws = wsConn;
+			tracks.subscribe(t => {
+				userTracks = t;
+			});
 		} else {
 			ws = undefined;
 		}
@@ -43,3 +50,12 @@
 </script>
 
 <h1>{data.room.name}</h1>
+<ul>
+	{#each [...userTracks.keys()] as userId}
+		<li>
+			{userId}: {userTracks.get(userId)?.name}
+			-
+			{getArtistName(userTracks.get(userId))}
+		</li>
+	{/each}
+</ul>

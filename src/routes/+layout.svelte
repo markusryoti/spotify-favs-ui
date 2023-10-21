@@ -24,8 +24,8 @@
 	import Icon from '@iconify/svelte';
 	import { page } from '$app/stores';
 	import { writable } from 'svelte/store';
-	import type { CurrentTrack } from '$lib/player/buildPlayer';
 	import { setContext } from 'svelte';
+	import type { CurrentTrack } from '$lib/spotify';
 
 	export let data: LayoutData;
 

@@ -1,4 +1,5 @@
-import type { CurrentTrack } from './player/buildPlayer';
+import { writable } from 'svelte/store';
+import type { CurrentTrack } from './spotify';
 
 type WsMessage = {
 	track: CurrentTrack;
@@ -6,6 +7,10 @@ type WsMessage = {
 };
 
 export function getWebSocket(roomId: string, token: string) {
+	const userTracks = writable<Map<string, CurrentTrack>>(
+		new Map<string, CurrentTrack>()
+	);
+
 	const ws = new WebSocket(
 		`ws://localhost:8080/rooms/${roomId}/ws?access_token=${token}`
 	);
@@ -16,14 +21,22 @@ export function getWebSocket(roomId: string, token: string) {
 
 	ws.onmessage = function (e) {
 		const msg: WsMessage = JSON.parse(e.data);
-		console.log('got ws msg', msg);
+
+		const userId = msg.user_id;
+
+		if (!userId) return;
+
+		userTracks.update(curr => {
+			curr.set(userId, msg.track);
+			return curr;
+		});
 	};
 
 	ws.onclose = function (e) {
 		console.log('ws connection closed');
 	};
 
-	return ws;
+	return { ws, userTracks };
 }
 
 export async function sendTrackChange(ws: WebSocket, msg: WsMessage) {

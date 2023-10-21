@@ -4,8 +4,9 @@
 	import Icon from '@iconify/svelte';
 	import { page } from '$app/stores';
 	import { browser } from '$app/environment';
-	import { buildPlayer, type CurrentTrack, type Player } from './buildPlayer';
+	import { buildPlayer, type Player } from './buildPlayer';
 	import type { Writable } from 'svelte/store';
+	import { getArtistName, type CurrentTrack } from '$lib/spotify';
 
 	let player: Player | undefined;
 	let currentlyPlaying: CurrentTrack | undefined;
@@ -16,7 +17,7 @@
 	});
 
 	$: currentlyPlaying = currentlyPlaying;
-	$: artists = currentlyPlaying?.artists.map(a => a.name).join(', ');
+	$: artists = getArtistName(currentlyPlaying);
 
 	$: setPlayer($page.data.accessToken);
 
@@ -42,7 +43,6 @@
 	}
 
 	function play() {
-		console.log('play clicked, player:', player);
 		player?.togglePlay();
 	}
 
