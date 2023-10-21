@@ -135,7 +135,7 @@
 
 	<svelte:fragment slot="pageFooter">
 		{#if authenticated}
-			<Player roomId={currentRoom} {currentTrack} />
+			<Player {currentTrack} />
 		{/if}
 	</svelte:fragment>
 </AppShell>

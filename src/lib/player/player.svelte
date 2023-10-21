@@ -1,18 +1,15 @@
 <script lang="ts">
 	export let currentTrack: Writable<CurrentTrack>;
-	export let roomId: string | undefined;
 
 	import Icon from '@iconify/svelte';
 	import { page } from '$app/stores';
 	import { browser } from '$app/environment';
 	import { buildPlayer, type CurrentTrack, type Player } from './buildPlayer';
-	import { getWebSocket, sendTrackChange } from '$lib/playerState';
 	import type { Writable } from 'svelte/store';
 
 	let player: Player | undefined;
 	let currentlyPlaying: CurrentTrack | undefined;
 	let artists: string | undefined;
-	let ws: WebSocket | undefined;
 
 	const unsub = currentTrack.subscribe(curr => {
 		currentlyPlaying = curr;
@@ -22,8 +19,6 @@
 	$: artists = currentlyPlaying?.artists.map(a => a.name).join(', ');
 
 	$: setPlayer($page.data.accessToken);
-	$: setWebsocketConnection(roomId);
-	$: sendCurrent(ws, $page.data.accessToken, currentlyPlaying);
 
 	async function setPlayer(token: string) {
 		if (player) return;
@@ -43,28 +38,6 @@
 				console.error('error getting player', error);
 				player = undefined;
 			}
-		}
-	}
-
-	async function setWebsocketConnection(roomId: string | undefined) {
-		if (browser && roomId) {
-			ws = getWebSocket(roomId, $page.data.sessionToken);
-		} else {
-			ws = undefined;
-		}
-	}
-
-	async function sendCurrent(
-		ws: WebSocket | undefined,
-		token: string | undefined,
-		track: CurrentTrack | undefined
-	) {
-		if (!browser || !ws || !track || !token) return;
-
-		if (ws.readyState === ws.OPEN) {
-			await sendTrackChange(ws, { track, user_id: null });
-		} else {
-			console.log('ws connection not open, readyState:', ws.readyState);
 		}
 	}
 
