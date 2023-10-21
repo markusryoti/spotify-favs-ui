@@ -23,22 +23,29 @@
 	import type { LayoutData } from './$types';
 	import Icon from '@iconify/svelte';
 	import { page } from '$app/stores';
+	import { writable } from 'svelte/store';
+	import type { CurrentTrack } from '$lib/player/buildPlayer';
+	import { setContext } from 'svelte';
 
 	export let data: LayoutData;
 
 	let currentTile = 0;
 	let currentRoom: undefined | string;
+
 	$: currentTile = currentTile;
 	$: currentRoom = currentRoom;
 
 	$: authenticated = data.accessToken !== '' ? true : false;
-	$: sessionData = {
-		accessToken: data.accessToken,
-		sessionToken: data.accessToken,
-	};
 
 	$: $page && setActiveTab();
 	$: $page && setRoom();
+
+	const currentTrack = writable<CurrentTrack>({
+		name: '',
+		artists: [{ name: '' }],
+	});
+
+	setContext('currentTrack', currentTrack);
 
 	function setActiveTab() {
 		const path = $page.url.pathname;
@@ -65,7 +72,6 @@
 		if (!roomMatch) return;
 
 		const roomId = roomMatch[0];
-		console.log(roomId);
 
 		currentRoom = roomId;
 	}
@@ -129,7 +135,7 @@
 
 	<svelte:fragment slot="pageFooter">
 		{#if authenticated}
-			<Player session={sessionData} roomId={currentRoom} />
+			<Player roomId={currentRoom} {currentTrack} />
 		{/if}
 	</svelte:fragment>
 </AppShell>

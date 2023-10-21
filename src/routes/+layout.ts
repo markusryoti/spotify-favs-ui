@@ -2,6 +2,8 @@ import type { LayoutLoad } from './$types';
 import type { AuthTokens } from './api/auth/+server';
 
 export const load: LayoutLoad = async ({ fetch, params }) => {
+	console.log('layout load');
+
 	try {
 		const res = await fetch('/api/auth', {
 			headers: {
@@ -24,10 +26,8 @@ export const load: LayoutLoad = async ({ fetch, params }) => {
 		console.error(`Error authenticating on layout ${error}`);
 
 		return {
-			sessionData: {
-				accessToken: '',
-				sessionToken: '',
-			},
+			accessToken: '',
+			sessionToken: '',
 		};
 	}
 };

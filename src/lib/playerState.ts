@@ -16,7 +16,7 @@ export function getWebSocket(roomId: string, token: string) {
 
 	ws.onmessage = function (e) {
 		const msg: WsMessage = JSON.parse(e.data);
-		console.log(msg);
+		console.log('got ws msg', msg);
 	};
 
 	ws.onclose = function (e) {

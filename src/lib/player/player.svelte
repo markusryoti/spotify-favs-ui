@@ -1,49 +1,44 @@
 <script lang="ts">
-	import Icon from '@iconify/svelte';
-
-	export let session: AuthTokens;
+	export let currentTrack: Writable<CurrentTrack>;
 	export let roomId: string | undefined;
 
+	import Icon from '@iconify/svelte';
+	import { page } from '$app/stores';
 	import { browser } from '$app/environment';
 	import { buildPlayer, type CurrentTrack, type Player } from './buildPlayer';
-	import { onDestroy } from 'svelte';
-	import type { Unsubscriber } from 'svelte/store';
 	import { getWebSocket, sendTrackChange } from '$lib/playerState';
-	import type { AuthTokens } from '../../routes/api/auth/+server';
+	import type { Writable } from 'svelte/store';
 
 	let player: Player | undefined;
-	let currentTrack: CurrentTrack | undefined;
-	let artists: string;
+	let currentlyPlaying: CurrentTrack | undefined;
+	let artists: string | undefined;
 	let ws: WebSocket | undefined;
-	let unsub: Unsubscriber | undefined;
 
-	$: ws = ws;
-	$: unsub = unsub;
-	$: session.accessToken && setPlayer(session.accessToken);
-	$: currentTrack = currentTrack;
-	$: artists = artists;
+	const unsub = currentTrack.subscribe(curr => {
+		currentlyPlaying = curr;
+	});
 
+	$: currentlyPlaying = currentlyPlaying;
+	$: artists = currentlyPlaying?.artists.map(a => a.name).join(', ');
+
+	$: setPlayer($page.data.accessToken);
 	$: setWebsocketConnection(roomId);
-	$: sendCurrent(ws, session.accessToken, currentTrack);
+	$: sendCurrent(ws, $page.data.accessToken, currentlyPlaying);
 
 	async function setPlayer(token: string) {
-		console.log('getting new player');
+		if (player) return;
 
 		if (browser && token) {
 			try {
-				const playerRes = await buildPlayer(token);
+				console.log('getting new player');
+				const p = await buildPlayer(token, currentTrack);
 
-				if (!playerRes || !playerRes?.player) {
+				if (!p) {
 					console.error('no player received');
 					return;
 				}
 
-				player = playerRes.player;
-
-				unsub = playerRes.currentTrack.subscribe(value => {
-					currentTrack = value;
-					artists = value.artists.map(a => a.name).join(', ');
-				});
+				player = p;
 			} catch (error) {
 				console.error('error getting player', error);
 				player = undefined;
@@ -53,12 +48,7 @@
 
 	async function setWebsocketConnection(roomId: string | undefined) {
 		if (browser && roomId) {
-			const res = await fetch('/api/auth');
-			const body: AuthTokens = await res.json();
-
-			if (!body.sessionToken) return;
-
-			ws = getWebSocket(roomId, body.sessionToken);
+			ws = getWebSocket(roomId, $page.data.sessionToken);
 		} else {
 			ws = undefined;
 		}
@@ -70,10 +60,16 @@
 		track: CurrentTrack | undefined
 	) {
 		if (!browser || !ws || !track || !token) return;
-		await sendTrackChange(ws, { track, user_id: null });
+
+		if (ws.readyState === ws.OPEN) {
+			await sendTrackChange(ws, { track, user_id: null });
+		} else {
+			console.log('ws connection not open, readyState:', ws.readyState);
+		}
 	}
 
 	function play() {
+		console.log('play clicked, player:', player);
 		player?.togglePlay();
 	}
 
@@ -84,16 +80,12 @@
 	function previous() {
 		player?.previousTrack();
 	}
-
-	if (unsub) {
-		onDestroy(unsub);
-	}
 </script>
 
-{#if currentTrack?.name}
+{#if currentlyPlaying?.name && player}
 	<div class="container bg-surface-800 p-2">
 		<div class="main-wrapper">
-			<p class="pt-2 text-lg font-bold">{currentTrack.name}</p>
+			<p class="pt-2 text-lg font-bold">{currentlyPlaying.name}</p>
 			<p class="pb-1">{artists}</p>
 			<div>
 				<button on:click={previous}>

@@ -1,4 +1,4 @@
-import { writable, type Writable } from 'svelte/store';
+import type { Writable } from 'svelte/store';
 
 export type CurrentTrack = {
 	name: string;
@@ -16,9 +16,10 @@ export type Player = {
 };
 
 export function buildPlayer(
-	token: string
-): Promise<{ player: Player; currentTrack: Writable<CurrentTrack> }> {
-	console.log('Constructing a new player');
+	token: string,
+	currentTrack: Writable<CurrentTrack>
+): Promise<Player> {
+	console.log('buildPlayer');
 
 	const scriptTag = document.getElementById('spotify-player');
 
@@ -36,13 +37,10 @@ export function buildPlayer(
 		document.head.appendChild(script);
 	}
 
-	const currentTrack = writable<CurrentTrack>({
-		name: '',
-		artists: [{ name: '' }],
-	});
-
 	return new Promise((resolve, reject) => {
 		window.onSpotifyWebPlaybackSDKReady = () => {
+			console.log('creating new player');
+
 			const player: Player = new window.Spotify.Player({
 				name: 'Spotify Favorites - Web',
 				getOAuthToken: (cb: any) => {
@@ -53,10 +51,7 @@ export function buildPlayer(
 
 			player.addListener('ready', ({ device_id }: { device_id: string }) => {
 				console.log('Ready with Device ID', device_id);
-				resolve({
-					player,
-					currentTrack,
-				});
+				resolve(player);
 			});
 
 			player.addListener(
@@ -93,7 +88,7 @@ export function buildPlayer(
 
 			player.addListener(
 				'player_state_changed',
-				({ position, duration, track_window: { current_track } }) => {
+				({ track_window: { current_track } }) => {
 					currentTrack.set(current_track as CurrentTrack);
 				}
 			);
