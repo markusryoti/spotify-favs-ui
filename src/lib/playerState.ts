@@ -1,4 +1,4 @@
-import { writable } from 'svelte/store';
+import { writable, type Writable } from 'svelte/store';
 import type { CurrentTrack } from './spotify';
 
 type WsMessage = {
@@ -6,37 +6,42 @@ type WsMessage = {
 	user_id: string | null;
 };
 
-export function getWebSocket(roomId: string, token: string) {
+type IncomingWsMessage = {
+	[userId: string]: CurrentTrack;
+};
+
+export function getWebSocket(
+	roomId: string,
+	token: string
+): Promise<{ ws: WebSocket; userTracks: Writable<Map<string, CurrentTrack>> }> {
 	const userTracks = writable<Map<string, CurrentTrack>>(
 		new Map<string, CurrentTrack>()
 	);
 
-	const ws = new WebSocket(
-		`ws://localhost:8080/rooms/${roomId}/ws?access_token=${token}`
-	);
+	return new Promise((resolve, reject) => {
+		const ws = new WebSocket(
+			`ws://localhost:8080/rooms/${roomId}/ws?access_token=${token}`
+		);
 
-	ws.onopen = function () {
-		console.log('client connected');
-	};
+		ws.onopen = function () {
+			console.log('ws connection created');
+			resolve({ ws, userTracks });
+		};
 
-	ws.onmessage = function (e) {
-		const msg: WsMessage = JSON.parse(e.data);
+		ws.onmessage = function (e) {
+			const msg: IncomingWsMessage = JSON.parse(e.data);
 
-		const userId = msg.user_id;
+			userTracks.update(_curr => {
+				const m = new Map<string, CurrentTrack>();
+				Object.keys(msg).forEach(k => m.set(k, msg[k]));
+				return m;
+			});
+		};
 
-		if (!userId) return;
-
-		userTracks.update(curr => {
-			curr.set(userId, msg.track);
-			return curr;
-		});
-	};
-
-	ws.onclose = function (e) {
-		console.log('ws connection closed');
-	};
-
-	return { ws, userTracks };
+		ws.onclose = function (e) {
+			console.log('ws connection closed');
+		};
+	});
 }
 
 export async function sendTrackChange(ws: WebSocket, msg: WsMessage) {

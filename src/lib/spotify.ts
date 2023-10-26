@@ -3,10 +3,17 @@ export type SpotifySession = {
 };
 
 export type CurrentTrack = {
+	id: string;
+	uri: string;
 	name: string;
 	artists: {
 		name: string;
 	}[];
+	album: {
+		images: {
+			url: string;
+		}[];
+	};
 };
 
 export function getArtistName(track?: CurrentTrack) {

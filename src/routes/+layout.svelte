@@ -41,8 +41,11 @@
 	$: $page && setRoom();
 
 	const currentTrack = writable<CurrentTrack>({
+		id: '',
+		uri: '',
 		name: '',
 		artists: [{ name: '' }],
+		album: { images: [] },
 	});
 
 	setContext('currentTrack', currentTrack);
