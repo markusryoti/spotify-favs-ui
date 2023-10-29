@@ -1,4 +1,4 @@
-import type { CurrentTrack } from '$lib/spotify';
+import type { CurrentTrack, Playback } from '$lib/spotify';
 import type { Writable } from 'svelte/store';
 
 export type Player = {
@@ -9,9 +9,14 @@ export type Player = {
 	previousTrack: () => void;
 };
 
+export type PlayerStatus = {
+	track: CurrentTrack;
+	playing: boolean;
+};
+
 export function buildPlayer(
 	token: string,
-	currentTrack: Writable<CurrentTrack>
+	currentTrack: Writable<PlayerStatus>
 ): Promise<Player> {
 	console.log('buildPlayer');
 
@@ -82,8 +87,12 @@ export function buildPlayer(
 
 			player.addListener(
 				'player_state_changed',
-				({ track_window: { current_track } }) => {
-					currentTrack.set(current_track as CurrentTrack);
+				({ track_window: { current_track }, paused }: Playback) => {
+					console.log('paused', paused);
+					currentTrack.set({
+						track: current_track,
+						playing: !paused,
+					});
 				}
 			);
 

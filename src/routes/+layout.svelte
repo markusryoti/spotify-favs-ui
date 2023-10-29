@@ -25,7 +25,7 @@
 	import { page } from '$app/stores';
 	import { writable } from 'svelte/store';
 	import { setContext } from 'svelte';
-	import type { CurrentTrack } from '$lib/spotify';
+	import type { PlayerStatus } from '$lib/player/buildPlayer';
 
 	export let data: LayoutData;
 
@@ -40,15 +40,18 @@
 	$: $page && setActiveTab();
 	$: $page && setRoom();
 
-	const currentTrack = writable<CurrentTrack>({
-		id: '',
-		uri: '',
-		name: '',
-		artists: [{ name: '' }],
-		album: { images: [] },
+	const playerStatus = writable<PlayerStatus>({
+		track: {
+			id: '',
+			uri: '',
+			name: '',
+			artists: [{ name: '' }],
+			album: { images: [] },
+		},
+		playing: false,
 	});
 
-	setContext('currentTrack', currentTrack);
+	setContext('playerStatus', playerStatus);
 
 	function setActiveTab() {
 		const path = $page.url.pathname;
@@ -138,7 +141,7 @@
 
 	<svelte:fragment slot="pageFooter">
 		{#if authenticated}
-			<Player {currentTrack} />
+			<Player {playerStatus} />
 		{/if}
 	</svelte:fragment>
 </AppShell>

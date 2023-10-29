@@ -1,23 +1,23 @@
 <script lang="ts">
-	export let currentTrack: Writable<CurrentTrack>;
+	export let playerStatus: Writable<PlayerStatus>;
 
 	import Icon from '@iconify/svelte';
 	import { page } from '$app/stores';
 	import { browser } from '$app/environment';
-	import { buildPlayer, type Player } from './buildPlayer';
+	import { buildPlayer, type Player, type PlayerStatus } from './buildPlayer';
 	import type { Writable } from 'svelte/store';
-	import { getArtistName, type CurrentTrack } from '$lib/spotify';
+	import { getArtistName } from '$lib/spotify';
 
 	let player: Player | undefined;
-	let currentlyPlaying: CurrentTrack | undefined;
+	let currentlyPlaying: PlayerStatus | undefined;
 	let artists: string | undefined;
 
-	const unsub = currentTrack.subscribe(curr => {
+	const unsub = playerStatus.subscribe(curr => {
 		currentlyPlaying = curr;
 	});
 
 	$: currentlyPlaying = currentlyPlaying;
-	$: artists = getArtistName(currentlyPlaying);
+	$: artists = getArtistName(currentlyPlaying?.track);
 
 	$: setPlayer($page.data.accessToken);
 
@@ -27,7 +27,7 @@
 		if (browser && token) {
 			try {
 				console.log('getting new player');
-				const p = await buildPlayer(token, currentTrack);
+				const p = await buildPlayer(token, playerStatus);
 
 				if (!p) {
 					console.error('no player received');
@@ -55,18 +55,25 @@
 	}
 </script>
 
-{#if currentlyPlaying?.name && player}
+{#if currentlyPlaying?.track.name && player}
 	<div class="container bg-surface-800 p-2">
 		<div class="main-wrapper">
-			<p class="pt-2 text-lg font-bold">{currentlyPlaying.name}</p>
+			<p class="pt-2 text-lg font-bold">{currentlyPlaying.track.name}</p>
 			<p class="pb-1">{artists}</p>
 			<div>
 				<button on:click={previous}>
 					<Icon icon="mdi-light:arrow-left" height="24" />
 				</button>
-				<button on:click={play}>
-					<Icon icon="mdi-light:play" height="26" />
-				</button>
+				{#if currentlyPlaying.playing}
+					<button on:click={play}>
+						<Icon icon="mdi-light:pause" height="26" />
+					</button>
+				{:else}
+					<button on:click={play}>
+						<Icon icon="mdi-light:play" height="26" />
+					</button>
+				{/if}
+
 				<button on:click={next}>
 					<Icon icon="mdi-light:arrow-right" height="24" />
 				</button>

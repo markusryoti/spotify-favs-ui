@@ -6,6 +6,7 @@
 	import { browser } from '$app/environment';
 	import { page } from '$app/stores';
 	import { getArtistName, type CurrentTrack } from '$lib/spotify';
+	import type { PlayerStatus } from '$lib/player/buildPlayer';
 
 	export let data: PageData;
 
@@ -15,11 +16,11 @@
 
 	$: userTracks = userTracks;
 
-	let currentTrack = getContext<Writable<CurrentTrack>>('currentTrack');
+	let currentTrack = getContext<Writable<PlayerStatus>>('playerStatus');
 
 	currentTrack.subscribe(curr => {
-		userTrack = curr;
-		sendCurrent(ws, curr);
+		userTrack = curr.track;
+		sendCurrent(ws, curr.track);
 	});
 
 	$: userTrack = userTrack;
