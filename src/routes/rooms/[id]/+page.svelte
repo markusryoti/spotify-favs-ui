@@ -7,6 +7,7 @@
 	import { page } from '$app/stores';
 	import { getArtistName, type CurrentTrack } from '$lib/spotify';
 	import type { PlayerStatus } from '$lib/player/buildPlayer';
+	import { beforeNavigate } from '$app/navigation';
 
 	export let data: PageData;
 
@@ -18,7 +19,7 @@
 
 	let currentTrack = getContext<Writable<PlayerStatus>>('playerStatus');
 
-	currentTrack.subscribe(curr => {
+	let unsub = currentTrack.subscribe(curr => {
 		userTrack = curr.track;
 		sendCurrent(ws, curr.track);
 	});
@@ -27,6 +28,12 @@
 
 	$: setWebsocketConnection(data.room.id);
 	$: sendCurrent(ws, userTrack);
+
+	beforeNavigate(() => {
+		console.log('closing ws connection');
+		ws?.close();
+		unsub();
+	});
 
 	async function setWebsocketConnection(roomId: string | undefined) {
 		if (browser && roomId) {

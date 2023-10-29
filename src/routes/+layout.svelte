@@ -55,15 +55,16 @@
 
 	function setActiveTab() {
 		const path = $page.url.pathname;
+		const formatted = path.split('/')[1];
 
-		switch (path) {
-			case '/':
+		switch (formatted) {
+			case '':
 				currentTile = 0;
 				break;
-			case '/current-favorites':
+			case 'current-favorites':
 				currentTile = 1;
 				break;
-			case '/rooms':
+			case 'rooms':
 				currentTile = 2;
 				break;
 			default:

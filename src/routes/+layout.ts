@@ -1,3 +1,4 @@
+import { redirect } from '@sveltejs/kit';
 import type { LayoutLoad } from './$types';
 import type { AuthTokens } from './api/auth/+server';
 

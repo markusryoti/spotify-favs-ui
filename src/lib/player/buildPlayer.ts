@@ -88,7 +88,6 @@ export function buildPlayer(
 			player.addListener(
 				'player_state_changed',
 				({ track_window: { current_track }, paused }: Playback) => {
-					console.log('paused', paused);
 					currentTrack.set({
 						track: current_track,
 						playing: !paused,
