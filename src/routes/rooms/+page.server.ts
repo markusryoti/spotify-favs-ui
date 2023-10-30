@@ -1,3 +1,4 @@
+import { getTokensFromRequest } from '$lib/server/token';
 import type { Actions, PageServerLoad } from './$types';
 
 export type Room = {
@@ -7,12 +8,12 @@ export type Room = {
 	created_at: string;
 };
 
-export const load = (async ({ cookies }) => {
-	const token = cookies.get('session');
+export const load = (async ({ cookies, fetch }) => {
+	const tokens = await getTokensFromRequest(cookies, fetch);
 
 	const res = await fetch('http://localhost:8080/rooms', {
 		headers: {
-			Authorization: `Bearer ${token}`,
+			Authorization: `Bearer ${tokens.sessionToken}`,
 		},
 	});
 	const rooms: Room[] = await res.json();
@@ -27,6 +28,8 @@ export const actions = {
 		const token = cookies.get('session');
 		const data = await request.formData();
 		const name = data.get('name');
+
+		throw new Error('invalid name');
 
 		const res = await fetch('http://localhost:8080/add-room', {
 			method: 'POST',

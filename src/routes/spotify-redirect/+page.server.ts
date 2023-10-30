@@ -23,8 +23,6 @@ export const load = (async ({ fetch, url, cookies }) => {
 		const res = await fetch(newUrl);
 		const responseData: TokenResponse = await res.json();
 
-		console.log(responseData);
-
 		setCookie(cookies, 'access_token', responseData.access_token);
 		setCookie(cookies, 'refresh_token', responseData.refresh_token);
 		setCookie(cookies, 'session', responseData.session);

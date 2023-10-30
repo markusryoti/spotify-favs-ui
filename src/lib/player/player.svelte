@@ -56,7 +56,7 @@
 </script>
 
 {#if currentlyPlaying?.track.name && player}
-	<div class="container bg-surface-800 p-2">
+	<div class="bg-surface-900 p-2">
 		<div class="main-wrapper">
 			<p class="pt-2 text-lg font-bold">{currentlyPlaying.track.name}</p>
 			<p class="pb-1">{artists}</p>

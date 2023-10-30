@@ -35,7 +35,7 @@
 	$: currentTile = currentTile;
 	$: currentRoom = currentRoom;
 
-	$: authenticated = data.accessToken !== '' ? true : false;
+	$: authenticated = data.accessToken !== '';
 
 	$: $page && setActiveTab();
 	$: $page && setRoom();
@@ -84,71 +84,70 @@
 	}
 </script>
 
-<AppShell>
-	<svelte:fragment slot="header">
-		<AppBar regionRowMain="text-xl font-bold">favs</AppBar>
-	</svelte:fragment>
+<div class="h-full overflow-hidden bg-surface-800">
+	<AppShell>
+		<svelte:fragment slot="header">
+			<AppBar regionRowMain="text-xl font-bold" background="bg-surface-900"
+				>favs</AppBar
+			>
+		</svelte:fragment>
 
-	<svelte:fragment slot="sidebarLeft">
-		{#if authenticated}
-			<AppRail>
-				<AppRailTile
-					bind:group={currentTile}
-					name="tile-1"
-					value={0}
-					title="tile-1"
-				>
-					<svelte:fragment slot="lead">
-						<AppRailAnchor href="/">Home</AppRailAnchor>
+		<svelte:fragment slot="sidebarLeft">
+			{#if authenticated}
+				<AppRail background="bg-surface-700">
+					<AppRailTile
+						bind:group={currentTile}
+						name="tile-1"
+						value={0}
+						title="tile-1"
+					>
+						<svelte:fragment slot="lead">
+							<AppRailAnchor href="/">Home</AppRailAnchor>
+						</svelte:fragment>
+					</AppRailTile>
+
+					<AppRailTile
+						bind:group={currentTile}
+						name="tile-1"
+						value={1}
+						title="tile-1"
+					>
+						<svelte:fragment slot="lead">
+							<AppRailAnchor href="/current-favorites">Stats</AppRailAnchor>
+						</svelte:fragment>
+					</AppRailTile>
+
+					<AppRailTile
+						bind:group={currentTile}
+						name="tile-2"
+						value={2}
+						title="tile-2"
+					>
+						<svelte:fragment slot="lead">
+							<AppRailAnchor href="/rooms">Rooms</AppRailAnchor>
+						</svelte:fragment>
+					</AppRailTile>
+
+					<svelte:fragment slot="trail">
+						<AppRailAnchor href="/profile" title="Account">
+							<div class="flex justify-center">
+								<Icon icon="mdi:user" height="24" />
+							</div>
+						</AppRailAnchor>
 					</svelte:fragment>
-				</AppRailTile>
+				</AppRail>
+			{/if}
+		</svelte:fragment>
 
-				<AppRailTile
-					bind:group={currentTile}
-					name="tile-1"
-					value={1}
-					title="tile-1"
-				>
-					<svelte:fragment slot="lead">
-						<AppRailAnchor href="/current-favorites">Stats</AppRailAnchor>
-					</svelte:fragment>
-				</AppRailTile>
-
-				<AppRailTile
-					bind:group={currentTile}
-					name="tile-2"
-					value={2}
-					title="tile-2"
-				>
-					<svelte:fragment slot="lead">
-						<AppRailAnchor href="/rooms">Rooms</AppRailAnchor>
-					</svelte:fragment>
-				</AppRailTile>
-
-				<svelte:fragment slot="trail">
-					<AppRailAnchor href="/profile" title="Account">
-						<div class="flex justify-center">
-							<Icon icon="mdi:user" height="24" />
-						</div>
-					</AppRailAnchor>
-				</svelte:fragment>
-			</AppRail>
-		{/if}
-	</svelte:fragment>
-
-	<div class="content">
 		<slot />
-	</div>
 
-	<svelte:fragment slot="pageFooter">
-		{#if authenticated}
-			<Player {playerStatus} />
-		{/if}
-	</svelte:fragment>
-</AppShell>
+		<svelte:fragment slot="footer">
+			{#if authenticated}
+				<Player {playerStatus} />
+			{/if}
+		</svelte:fragment>
+	</AppShell>
+</div>
 
 <style>
-	.content {
-		padding: 2rem;
-	}
 </style>
