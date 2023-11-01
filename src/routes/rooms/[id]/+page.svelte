@@ -69,35 +69,33 @@
 	}
 </script>
 
-<div class="p-4">
-	<h1>{data.room.name}</h1>
+<h1>{data.room.name}</h1>
 
-	{#if userTracks}
-		<ul>
-			{#each [...userTracks.keys()] as userId}
-				<li>
-					<div class="flex items-center">
-						<div class="p-6">
-							<h4 class="font-semibold">
-								{userId}
-							</h4>
-						</div>
-						<div class="flex flex-col p-6">
-							<h4 class="font-semibold">{userTracks.get(userId)?.name}</h4>
-							<p>{getArtistName(userTracks.get(userId))}</p>
-						</div>
-						<div class="p-6">
-							<span class="">
-								<img
-									src={userTracks.get(userId)?.album.images[0].url}
-									alt=""
-									class="w-16 rounded-full"
-								/>
-							</span>
-						</div>
+{#if userTracks}
+	<ul>
+		{#each [...userTracks.keys()] as userId}
+			<li>
+				<div class="flex items-center">
+					<div class="p-6">
+						<h4 class="font-semibold">
+							{userId}
+						</h4>
 					</div>
-				</li>
-			{/each}
-		</ul>
-	{/if}
-</div>
+					<div class="flex flex-col p-6">
+						<h4 class="font-semibold">{userTracks.get(userId)?.name}</h4>
+						<p>{getArtistName(userTracks.get(userId))}</p>
+					</div>
+					<div class="p-6">
+						<span class="">
+							<img
+								src={userTracks.get(userId)?.album.images[0]?.url}
+								alt=""
+								class="w-16 rounded-full"
+							/>
+						</span>
+					</div>
+				</div>
+			</li>
+		{/each}
+	</ul>
+{/if}

@@ -4,26 +4,24 @@
 	export let data: PageData;
 </script>
 
-<div class="p-4">
-	<h1>current items</h1>
+<h1>current items</h1>
 
-	<ul class="list pt-8">
-		{#each data.tracks as track}
-			<li class="p-1">
-				<div class="">
-					<span class="">
-						<img
-							src={track.album.images[0].url}
-							alt=""
-							class="w-16 rounded-full"
-						/>
-					</span>
-				</div>
-				<div class="flex flex-col">
-					<h4 class="font-semibold">{track.name}</h4>
-					<p>{track.album.artists.map(a => a.name).join(', ')}</p>
-				</div>
-			</li>
-		{/each}
-	</ul>
-</div>
+<ul class="list pt-8">
+	{#each data.tracks as track}
+		<li class="p-1">
+			<div class="">
+				<span class="">
+					<img
+						src={track.album.images[0].url}
+						alt=""
+						class="w-16 rounded-full"
+					/>
+				</span>
+			</div>
+			<div class="flex flex-col">
+				<h4 class="font-semibold">{track.name}</h4>
+				<p>{track.album.artists.map(a => a.name).join(', ')}</p>
+			</div>
+		</li>
+	{/each}
+</ul>

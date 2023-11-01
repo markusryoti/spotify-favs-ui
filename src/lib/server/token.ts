@@ -22,7 +22,7 @@ export async function getTokensFromRequest(
 	const refreshToken = cookies.get('refresh_token');
 	const sessionToken = cookies.get('session');
 
-	if (accessToken)
+	if (accessToken && sessionToken)
 		return {
 			accessToken,
 			sessionToken,

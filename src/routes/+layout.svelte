@@ -26,16 +26,16 @@
 	import { writable } from 'svelte/store';
 	import { setContext } from 'svelte';
 	import type { PlayerStatus } from '$lib/player/buildPlayer';
+	import type { AuthTokens } from './api/auth/+server';
 
 	export let data: LayoutData;
 
 	let currentTile = 0;
 	let currentRoom: undefined | string;
+	let authTokens: AuthTokens;
 
 	$: currentTile = currentTile;
 	$: currentRoom = currentRoom;
-
-	$: authenticated = data.accessToken !== '';
 
 	$: $page && setActiveTab();
 	$: $page && setRoom();
@@ -51,7 +51,19 @@
 		playing: false,
 	});
 
+	const tokens = writable<AuthTokens>({
+		accessToken: data.accessToken,
+		sessionToken: data.sessionToken,
+	});
+
 	setContext('playerStatus', playerStatus);
+	setContext('authTokens', tokens);
+
+	tokens.subscribe(ts => {
+		authTokens = ts;
+	});
+
+	$: authenticated = authTokens.accessToken && authTokens.sessionToken;
 
 	function setActiveTab() {
 		const path = $page.url.pathname;
@@ -139,7 +151,9 @@
 			{/if}
 		</svelte:fragment>
 
-		<slot />
+		<div class="p-6">
+			<slot />
+		</div>
 
 		<svelte:fragment slot="footer">
 			{#if authenticated}

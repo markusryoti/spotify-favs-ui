@@ -2,26 +2,35 @@
 	export let playerStatus: Writable<PlayerStatus>;
 
 	import Icon from '@iconify/svelte';
-	import { page } from '$app/stores';
 	import { browser } from '$app/environment';
 	import { buildPlayer, type Player, type PlayerStatus } from './buildPlayer';
 	import type { Writable } from 'svelte/store';
 	import { getArtistName } from '$lib/spotify';
+	import { getContext } from 'svelte';
+	import type { AuthTokens } from '../../routes/api/auth/+server';
 
 	let player: Player | undefined;
 	let currentlyPlaying: PlayerStatus | undefined;
 	let artists: string | undefined;
+	let authToken: string | undefined;
 
 	const unsub = playerStatus.subscribe(curr => {
 		currentlyPlaying = curr;
 	});
 
+	let tokenCtx = getContext<Writable<AuthTokens>>('authTokens');
+
+	let unsubTokens = tokenCtx.subscribe(ts => {
+		authToken = ts.accessToken;
+	});
+
 	$: currentlyPlaying = currentlyPlaying;
 	$: artists = getArtistName(currentlyPlaying?.track);
 
-	$: setPlayer($page.data.accessToken);
+	$: authToken = authToken;
+	$: setPlayer(authToken);
 
-	async function setPlayer(token: string) {
+	async function setPlayer(token?: string) {
 		if (player) return;
 
 		if (browser && token) {

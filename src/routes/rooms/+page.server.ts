@@ -29,7 +29,9 @@ export const actions = {
 		const data = await request.formData();
 		const name = data.get('name');
 
-		throw new Error('invalid name');
+		if (!name) {
+			throw new Error('invalid name');
+		}
 
 		const res = await fetch('http://localhost:8080/add-room', {
 			method: 'POST',
